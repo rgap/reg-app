@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro de Participantes</title>
+</head>
+<body>
+    <h1>Registro de Participantes sin Grupo</h1>
+
+    <form action="/register" method="post">
+        <label for="phone">Número de Celular:</label>
+        <input type="text" name="phone" required>
+        <label for="skills">Habilidades:</label>
+        <input type="text" name="skills" required>
+        <input type="submit" value="Registrar">
+    </form>
+
+    <h2>Lista de Participantes sin Grupo</h2>
+    <ul>
+    {% for participant in participants %}
+        <li>{{ participant[1] }} - {{ participant[2] }}</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

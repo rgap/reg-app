@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS participants;
+
+CREATE TABLE participants (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone TEXT NOT NULL,
+    skills TEXT NOT NULL
+);
