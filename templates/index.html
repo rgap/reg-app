@@ -1,24 +1,142 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Registro de Participantes</title>
-</head>
-<body>
-    <h1>Registro de Participantes sin Grupo</h1>
+  <head>
+    <title>Participantes del Hackaton</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Estilos personalizados -->
+    <style>
+      body {
+        background-color: #ffffff; /* Establece el fondo como blanco */
+      }
 
-    <form action="/register" method="post">
-        <label for="phone">Número de Celular:</label>
-        <input type="text" name="phone" required>
-        <label for="skills">Habilidades:</label>
-        <input type="text" name="skills" required>
-        <input type="submit" value="Registrar">
-    </form>
+      /* Para el color azul-violeta */
+      .btn-primary,
+      .btn-primary:hover,
+      .btn-primary:focus {
+        background-color: #6c5ce7;
+        border-color: #6c5ce7;
+      }
+    </style>
+  </head>
 
-    <h2>Lista de Participantes sin Grupo</h2>
-    <ul>
-    {% for participant in participants %}
-        <li>{{ participant[1] }} - {{ participant[2] }}</li>
-    {% endfor %}
-    </ul>
-</body>
+  <body>
+    <div class="container mt-5">
+      <h1 class="text-center mb-4">Participantes del Hackaton</h1>
+      <div class="row justify-content-center">
+        <!-- Columna Izquierda (Registro) - 1/3 -->
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <div class="card-header">
+              Ingresa tu experiencia para que otros te agreguen a sus grupos
+            </div>
+            <div class="card-body">
+              <form id="registrationForm" action="/register" method="post">
+                <div class="form-group">
+                  <label for="autocompleteInput">Número:</label>
+                  <input
+                    type="text"
+                    id="autocompleteInput"
+                    class="form-control"
+                    name="phone"
+                    required
+                  />
+                  <div id="phoneError" class="form-text text-danger d-none">
+                    El número no está disponible en el grupo de WhatsApp.
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="skills">Tu Experiencia 🧙‍♂️</label>
+                  <textarea
+                    class="form-control"
+                    rows="6"
+                    id="skills"
+                    name="skills"
+                    required
+                  ></textarea>
+                </div>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  id="submitButton"
+                  disabled
+                >
+                  Registrar
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- Columna Derecha (Lista de Participantes) - 2/3 -->
+        <div class="col-md-8">
+          <h2 class="text-center">Lista de Participantes</h2>
+          <ul class="list-group">
+            {% for participant in participants %}
+            <li class="list-group-item">
+              {{ participant[1] }} - {{ participant[2] }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript para autocompletado -->
+    <script>
+      const input = document.getElementById("autocompleteInput");
+      const phoneError = document.getElementById("phoneError");
+      const submitButton = document.getElementById("submitButton");
+      const numbers = ["100", "200", "300"];
+
+      input.addEventListener("keyup", function (event) {
+        let inputValue = input.value;
+
+        if (event.keyCode === 8) {
+          // Si se presiona la tecla backspace, simplemente regresa.
+          return;
+        }
+
+        for (let number of numbers) {
+          if (number.startsWith(inputValue)) {
+            input.value = number;
+            input.setSelectionRange(inputValue.length, number.length);
+            break;
+          }
+        }
+      });
+
+      input.addEventListener("blur", function () {
+        let inputValue = input.value;
+
+        if (!numbers.includes(inputValue)) {
+          phoneError.classList.remove("d-none");
+          submitButton.disabled = true; // Deshabilita el botón de envío.
+        } else {
+          phoneError.classList.add("d-none"); // Esconde el mensaje de error.
+          submitButton.disabled = false; // Habilita el botón de envío.
+        }
+      });
+
+      document
+        .getElementById("registrationForm")
+        .addEventListener("submit", function (event) {
+          let inputValue = input.value;
+
+          if (!numbers.includes(inputValue)) {
+            event.preventDefault(); // Evita que se envíe el formulario.
+          }
+        });
+
+      // Esconde el mensaje de error al empezar a escribir de nuevo.
+      input.addEventListener("input", function () {
+        phoneError.classList.add("d-none");
+      });
+    </script>
+
+    <!-- Bootstrap 5 JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
