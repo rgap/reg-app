@@ -1,9 +1,12 @@
 import sqlite3
 
-from flask import Flask, g, redirect, render_template, request, url_for
+import requests
+from flask import Flask, g, redirect, render_template, request, session, url_for
 
 app = Flask(__name__)
 app.secret_key = "secret_delas"
+
+# app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 
 DATABASE = "database/participants.db"
@@ -33,6 +36,22 @@ def index():
 
 @app.route("/register", methods=["POST"])
 def register():
+    # get the reCAPTCHA response data
+    recaptcha_response = request.form.get("g-recaptcha-response")
+
+    # verify reCAPTCHA
+    payload = {
+        "secret": "6LcTNQYoAAAAAEWJKUs1eNIzNdUECS3ciTLP2dQR",
+        "response": recaptcha_response,
+    }
+    response = requests.post(
+        "https://www.google.com/recaptcha/api/siteverify", data=payload
+    )
+    result = response.json()
+
+    if not result.get("success"):
+        return redirect(url_for("index"))
+
     db = get_db()
     phone = request.form.get("phone")
     skills = request.form.get("skills")

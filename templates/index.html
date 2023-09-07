@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Participantes del Hackaton</title>
+    <title>Participantes del Evento</title>
+    <!-- reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <!-- Bootstrap 5 CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
     <!-- Estilos personalizados -->
     <style>
       body {
         background-color: #ffffff; /* Establece el fondo como blanco */
       }
-
+      label {
+        margin: 6px 0px !important;
+      }
       /* Para el color azul-violeta */
       .btn-primary,
       .btn-primary:hover,
@@ -20,17 +25,23 @@
         background-color: #6c5ce7;
         border-color: #6c5ce7;
       }
+      .g-recaptcha > div {
+        margin: auto;
+      }
+      .rc-anchor-normal.rc-anchor-error .rc-anchor-content {
+        margin-top: 14px;
+      }
     </style>
   </head>
 
   <body>
     <div class="container mt-5">
-      <h1 class="text-center mb-4">Participantes del Hackaton</h1>
+      <h1 class="text-center mb-4">Participantes</h1>
       <div class="row justify-content-center">
-        <!-- Columna Izquierda (Registro) - 1/3 -->
-        <div class="col-md-4">
+        <!-- Columna Izquierda (Registro) -->
+        <div class="col-lg-4 col-md-8">
           <div class="card mb-4">
-            <div class="card-header">
+            <div class="card-header text-center">
               Ingresa tu experiencia para que otros te agreguen a sus grupos
             </div>
             <div class="card-body">
@@ -44,11 +55,12 @@
                     name="phone"
                     required
                   />
-                  <div id="phoneError" class="form-text text-danger d-none">
+                  <div
+                    id="phoneError"
+                    class="form-text text-danger d-none my-2"
+                  >
                     El número no está disponible en el grupo de WhatsApp.
                   </div>
-                </div>
-                <div class="form-group">
                   <label for="skills">Tu Experiencia 🧙‍♂️</label>
                   <textarea
                     class="form-control"
@@ -57,28 +69,48 @@
                     name="skills"
                     required
                   ></textarea>
+                  <div
+                    id="skillsError"
+                    class="form-text text-danger d-none my-2"
+                  >
+                    La experiencia debe tener al menos 15 caracteres.
+                  </div>
                 </div>
-                <button
-                  type="submit"
-                  class="btn btn-primary"
-                  id="submitButton"
-                  disabled
-                >
-                  Registrar
-                </button>
+
+                <div
+                  class="g-recaptcha my-4"
+                  data-sitekey="6LcTNQYoAAAAAMG551NCs3btzHJKOftA16Je1dbO"
+                  id="recaptcha"
+                ></div>
+                <div class="text-center">
+                  <button
+                    type="submit"
+                    class="btn btn-primary w-50 p-2"
+                    id="submitButton"
+                    disabled
+                  >
+                    Registrar
+                  </button>
+                </div>
               </form>
             </div>
           </div>
         </div>
-        <!-- Columna Derecha (Lista de Participantes) - 2/3 -->
-        <div class="col-md-8">
+        <!-- Columna Derecha (Lista de Participantes) -->
+        <div class="col-lg-8 col-md-10">
           <h2 class="text-center">Lista de Participantes</h2>
           <ul class="list-group">
-            {% for participant in participants %}
+            {% if participants|length > 0 %} {% for participant in participants
+            %}
             <li class="list-group-item">
-              {{ participant[1] }} - {{ participant[2] }}
+              <div class="row">
+                <div class="col-4">{{ participant[1] }}</div>
+                <div class="col-8">{{ participant[2] }}</div>
+              </div>
             </li>
-            {% endfor %}
+            {% endfor %} {% else %}
+            <li class="list-group-item text-center">vacio por ahora 😢</li>
+            {% endif %}
           </ul>
         </div>
       </div>
@@ -88,14 +120,20 @@
     <script>
       const input = document.getElementById("autocompleteInput");
       const phoneError = document.getElementById("phoneError");
+      const skillsInput = document.getElementById("skills");
+      const skillsError = document.getElementById("skillsError");
       const submitButton = document.getElementById("submitButton");
       const numbers = ["100", "200", "300"];
+
+      skillsInput.addEventListener("input", function () {
+        validateSkills();
+        validateForm();
+      });
 
       input.addEventListener("keyup", function (event) {
         let inputValue = input.value;
 
         if (event.keyCode === 8) {
-          // Si se presiona la tecla backspace, simplemente regresa.
           return;
         }
 
@@ -106,34 +144,59 @@
             break;
           }
         }
+
+        validateForm();
       });
 
       input.addEventListener("blur", function () {
-        let inputValue = input.value;
+        validatePhone();
+        validateForm();
+      });
 
+      function validateSkills() {
+        let skillsValue = skillsInput.value;
+        if (skillsValue.length < 15) {
+          skillsError.classList.remove("d-none");
+          return false;
+        } else {
+          skillsError.classList.add("d-none");
+          return true;
+        }
+      }
+
+      function validatePhone() {
+        let inputValue = input.value;
         if (!numbers.includes(inputValue)) {
           phoneError.classList.remove("d-none");
-          submitButton.disabled = true; // Deshabilita el botón de envío.
+          return false;
         } else {
-          phoneError.classList.add("d-none"); // Esconde el mensaje de error.
-          submitButton.disabled = false; // Habilita el botón de envío.
+          phoneError.classList.add("d-none");
+          return true;
         }
-      });
+      }
+
+      function validateForm() {
+        if (
+          validatePhone() &&
+          grecaptcha.getResponse().length &&
+          validateSkills()
+        ) {
+          submitButton.disabled = false;
+        } else {
+          submitButton.disabled = true;
+        }
+      }
 
       document
         .getElementById("registrationForm")
         .addEventListener("submit", function (event) {
-          let inputValue = input.value;
-
-          if (!numbers.includes(inputValue)) {
-            event.preventDefault(); // Evita que se envíe el formulario.
+          if (!validateForm()) {
+            event.preventDefault();
+            if (!grecaptcha.getResponse().length) {
+              alert("Please complete the reCAPTCHA.");
+            }
           }
         });
-
-      // Esconde el mensaje de error al empezar a escribir de nuevo.
-      input.addEventListener("input", function () {
-        phoneError.classList.add("d-none");
-      });
     </script>
 
     <!-- Bootstrap 5 JS and Popper.js -->
