@@ -6,7 +6,7 @@ from flask import Flask, g, redirect, render_template, request, session, url_for
 app = Flask(__name__)
 app.secret_key = "secret_delas"
 
-# app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 
 DATABASE = "database/participants.db"
@@ -36,6 +36,7 @@ def index():
 
 @app.route("/register", methods=["POST"])
 def register():
+    print("registering participant")
     # get the reCAPTCHA response data
     recaptcha_response = request.form.get("g-recaptcha-response")
 
