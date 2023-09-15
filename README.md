@@ -4,7 +4,8 @@ A simple website demo for collecting data from WhatsApp group members.
 
 ## Tools & Frameworks
 
-- Bootstrap
+- Bootstrap 5.1
+- Recaptcha
 - HTML5
 - Javascript
 - Flask
