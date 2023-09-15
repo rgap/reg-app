@@ -1,4 +1,4 @@
-# Member Registration App
+# Member Registration Web App
 
 A simple website demo for collecting data from WhatsApp group members.
 
